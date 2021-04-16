@@ -2,7 +2,7 @@ import mongoose, {Schema} from 'mongoose';
 // import timestamps from "mongoose-timestamp";
 const timestamps = require('mongoose-timestamp');
 
-const PersonSchema = new mongoose.Schema({
+const AccountSchema = new mongoose.Schema({
     firstname : {
         type : mongoose.Schema.Types.String,
         required : false,
@@ -32,8 +32,8 @@ const PersonSchema = new mongoose.Schema({
         ref : "User"
     }
 });
-PersonSchema.plugin(timestamps);
+AccountSchema.plugin(timestamps);
 
-const Person =  mongoose.model("Person" , PersonSchema);
+const Account =  mongoose.model("Account" , AccountSchema);
 
-export default Person;
+export default Account;

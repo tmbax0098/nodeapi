@@ -1,9 +1,11 @@
-import mongoose, {Schema} from 'mongoose';
-import {cryptoOption} from "../../config";
-import IUser from "../interfaces/IUser";
-// import timestamps from "mongoose-timestamp";
-const timestamps = require('mongoose-timestamp');
+import mongoose from 'mongoose';
 import validator from 'validator';
+import IUser from "../tools/interfaces/IUser";
+import EnumRoles from "../tools/enums/EnumRoles";
+import IAnswerUser from "../tools/interfaces/IAnswerUser";
+
+const timestamps = require('mongoose-timestamp');
+
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -31,11 +33,6 @@ const UserSchema = new mongoose.Schema({
         min: 3,
         max: 50
     },
-    active: {
-        type: mongoose.Schema.Types.Boolean,
-        required: false,
-        default: false,
-    },
     block: {
         type: mongoose.Schema.Types.Boolean,
         required: false,
@@ -46,14 +43,22 @@ const UserSchema = new mongoose.Schema({
         required: false,
         default: false,
     },
-    personId: {
+    accountId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Person",
-    }
+        ref: "Account",
+    },
+    role: {
+        type: mongoose.Schema.Types.String,
+        default: EnumRoles.member,
+    },
+    accesses: [{
+        type: mongoose.Schema.Types.Number,
+    }],
+    services: [{
+        type: mongoose.Schema.Types.Number,
+    }]
 });
 UserSchema.plugin(timestamps);
-
-
 UserSchema.method('transform', function () {
     let obj = this.toObject() as IUser;
 
@@ -64,12 +69,19 @@ UserSchema.method('transform', function () {
 
     return obj;
 });
-// UserSchema.pre('save', function (user: any, next: any) {
-//
-//
-//     // user.password  = hash(user.password,);
-//     next();
-// });
+UserSchema.method('forToken', function () {
+    let obj = this.toObject() as IUser;
+
+    let result: IAnswerUser = {
+        username: obj.username,
+        role: obj.role,
+        services: obj.services,
+        id: obj._id,
+        accesses: obj.accesses
+    }
+
+    return result;
+});
 
 const User = mongoose.model("User", UserSchema);
 

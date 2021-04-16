@@ -1,15 +1,14 @@
-import { Router} from "express";
+import {Router} from "express";
 import AuthController from "./../controllers/AuthController";
 
 const router = Router();
 
+router.put("/signup", AuthController.create);
+router.post("/signin", AuthController.login);
+router.get("/confirm/accept/:token", AuthController.confirmAccept);
+router.get("/confirm/reject/:token", AuthController.confirmReject);
 
-router.put("/signup" ,AuthController.create);
-
-router.post("/signin" , (req , res)=>{
-
-})
-
-router.get("/all" , AuthController.all);
+router.get("/all/confirm", AuthController.allConfirm);
+router.get("/all", AuthController.all);
 
 export default router;
