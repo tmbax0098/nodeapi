@@ -1,6 +1,7 @@
 import Controller, {ApiRequest} from "./Controller";
 import User from "../models/User";
 import IAnswerUser from "../tools/interfaces/IAnswerUser";
+import TypeTextValue from "../tools/types/TypeTextValue";
 
 export default new class UserController extends Controller {
 
@@ -16,6 +17,16 @@ export default new class UserController extends Controller {
         })
     }
 
+
+    getNames: ApiRequest = async (req, res) => {
+        const list = await User.find().select({_id: 1, username: 1});
+        this.success(res, {
+            error: false,
+            status: true,
+            data: list.map((item: any) => item.toTextValue()),
+            message: "All user text and value!"
+        })
+    }
     all: ApiRequest = async (req, res) => {
         const list = await User.find();
         this.success(res, {
@@ -26,7 +37,8 @@ export default new class UserController extends Controller {
         })
     }
     getOne: ApiRequest = async (req, res) => {
-        const item = await User.find({_id: req.params.id}).populate("account");
+
+        const item = await User.findOne({_id: req.params.id}).populate("account");
         if (item) {
             return this.success(res, {
                 error: false,

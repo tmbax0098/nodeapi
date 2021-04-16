@@ -69,18 +69,9 @@ UserSchema.method('transform', function () {
 
     return obj;
 });
-UserSchema.method('forToken', function () {
+UserSchema.method('toTextValue', function () {
     let obj = this.toObject() as IUser;
-
-    let result: IAnswerUser = {
-        username: obj.username,
-        role: obj.role,
-        services: obj.services,
-        id: obj._id,
-        accesses: obj.accesses
-    }
-
-    return result;
+    return {text : obj.username , value : obj._id};
 });
 
 const User = mongoose.model("User", UserSchema);

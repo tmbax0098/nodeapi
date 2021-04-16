@@ -11,6 +11,8 @@ router.use(RoleController.onlyTechnical);
 router.delete("/all", UserController.deleteAll);
 router.get("/all", UserController.all);
 
+router.get("/names" , UserController.getNames);
+
 //TODO here must be complete
 router.delete("/info/:id", UserController.deleteOne);
 router.get("/info/:id", UserController.getOne);

@@ -32,14 +32,52 @@ export default new class RoleController extends Controller {
         }
     }
 
-
     //TODO here must be complete
     onlyTechnical: ApiRequest = async (req, res, next) => {
-        if (req.headers.role !== EnumRoles.technical + "") {
-            return this.accessDenied(res , {});
+
+        if (!req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.technical) {
+            return this.accessDenied(res, {});
         }
         next();
     }
 
+    onlyAdmin: ApiRequest = async (req, res, next) => {
+        if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.admin) {
+            return this.accessDenied(res, {});
+        }
+        next();
+    }
+
+    onlyUser: ApiRequest = async (req, res, next) => {
+        if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.user) {
+            return this.accessDenied(res, {});
+        }
+        next();
+    }
+    onlySuperMember: ApiRequest = async (req, res, next) => {
+        if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.superMember) {
+            return this.accessDenied(res, {});
+        }
+        next();
+    }
+    onlyMember: ApiRequest = async (req, res, next) => {
+        if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.member) {
+            return this.accessDenied(res, {});
+        }
+        next();
+    }
+    onlyGuest: ApiRequest = async (req, res, next) => {
+        if (!req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.guest) {
+            return this.accessDenied(res, {});
+        }
+        next();
+    }
+
+    notGuest : ApiRequest = async (req, res, next) => {
+        if (!req.headers.role || parseInt(req.headers.role as string) === EnumRoles.guest) {
+            return this.accessDenied(res, {});
+        }
+        next();
+    }
 
 }

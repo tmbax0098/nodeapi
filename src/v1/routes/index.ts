@@ -7,6 +7,7 @@ const router = Router();
 //routes
 import authRoute from "./auth";
 import userRoute from "./user";
+import accountRoute from './account';
 
 router.use(RoleController.decodeToken);
 // router.use((req: any, res: any, next: any) => {
@@ -18,5 +19,6 @@ router.get("/version", (req, res) => {
 })
 router.use("/auth", authRoute);
 router.use("/user", userRoute);
+router.use("/account", accountRoute);
 
 export default router;
