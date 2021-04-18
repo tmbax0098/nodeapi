@@ -1,5 +1,5 @@
-import mongoose, {Schema} from 'mongoose';
-import IUser from "../tools/interfaces/IUser";
+import mongoose from 'mongoose';
+import IAccount from "../tools/interfaces/IAccount";
 // import timestamps from "mongoose-timestamp";
 const timestamps = require('mongoose-timestamp');
 
@@ -11,12 +11,6 @@ const AccountSchema = new mongoose.Schema({
         max: 50,
     },
     lastname: {
-        type: mongoose.Schema.Types.String,
-        required: false,
-        default: "",
-        max: 50
-    },
-    father: {
         type: mongoose.Schema.Types.String,
         required: false,
         default: "",
@@ -36,11 +30,10 @@ const AccountSchema = new mongoose.Schema({
 AccountSchema.plugin(timestamps);
 
 AccountSchema.method('transform', function () {
-    let obj = this.toObject();
+    let obj = this.toObject() as IAccount;
     return {
         firstname: obj.firstname,
         lastname: obj.lastname,
-        father: obj.father,
         phone: obj.phone,
     }
 });
