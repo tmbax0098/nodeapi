@@ -6,6 +6,7 @@ export default interface IUser {
     displayName?: string;
     block?: boolean;
     confirmed?: boolean;
+    deleted?: boolean;
     account?: any;
     role?: string;
     accesses?: number[];

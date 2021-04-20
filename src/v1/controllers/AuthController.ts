@@ -128,6 +128,9 @@ export default new class AuthController extends Controller {
                         let token = new Token({value: this.createToken({username: username})});
                         token.save((err: CallbackError, doc: any) => {
                             if (doc) {
+                                // res.cookies.set
+                                // res.cookie.setCookie('token' , token.value);
+                                res.cookie('token', token.value, {maxAge: 900000, httpOnly: true});
                                 return this.success(res, {
                                     message: "Login successfully!",
                                     data: token.value
@@ -158,6 +161,11 @@ export default new class AuthController extends Controller {
                 message: "Login fail!"
             })
         }
+    }
+    logout: ApiRequest = async (req, res) => {
+        // res.cookie("token", "", {maxAge: 0});
+        res.clearCookie("token");
+        this.message(res, "log out successfully!");
     }
 
     all: ApiRequest = (req, res) => {

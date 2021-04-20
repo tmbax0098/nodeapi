@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import validator from 'validator';
 import IUser from "../tools/interfaces/IUser";
 import EnumRoles from "../tools/enums/EnumRoles";
-import IAnswerUser from "../tools/interfaces/IAnswerUser";
 
 const timestamps = require('mongoose-timestamp');
 
@@ -39,6 +38,11 @@ const UserSchema = new mongoose.Schema({
         default: false,
     },
     confirmed: {
+        type: mongoose.Schema.Types.Boolean,
+        required: false,
+        default: false,
+    },
+    deleted: {
         type: mongoose.Schema.Types.Boolean,
         required: false,
         default: false,

@@ -1,6 +1,7 @@
 enum EnumService {
-    userManagement,
+    user,
     post,
+    poll,
     course,
     exam,
     school,

@@ -4,7 +4,7 @@ enum EnumRoles {
     user,
     superMember,
     member,
-    guest,
+    all,
     none
 }
 

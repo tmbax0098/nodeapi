@@ -1,21 +1,21 @@
 import {Router} from "express";
 import UserController from "../controllers/UserController";
-import RoleController from "../controllers/RoleController";
+import ServiceController from "../controllers/ServiceController";
 
 const router = Router();
 
+router.use(ServiceController.debug);
+router.use(ServiceController.accessUser);
 
-router.use(RoleController.debug);
-router.use(RoleController.onlyTechnical);
-
-router.delete("/all", UserController.deleteAll);
+router.delete("/all", UserController.removeAll);
 router.get("/all", UserController.all);
 
-router.get("/names" , UserController.getNames);
+router.get("/names", UserController.names);
+router.get("/table", UserController.table);
 
-//TODO here must be complete
-router.delete("/info/:id", UserController.deleteOne);
-router.get("/info/:id", UserController.getOne);
+
+router.delete("/info/:id", UserController.remove);
+router.get("/info/:id", UserController.one);
 
 
 export default router;

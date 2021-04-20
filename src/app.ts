@@ -2,6 +2,7 @@ import express from 'express';
 import {http} from "./config"
 import {json, urlencoded} from "body-parser";
 import mongoose from "mongoose";
+const cookieParser = require('cookie-parser')
 
 mongoose.connect('mongodb://localhost/nodeapi', {useNewUrlParser: true, useUnifiedTopology: true});
 
@@ -9,6 +10,7 @@ mongoose.connect('mongodb://localhost/nodeapi', {useNewUrlParser: true, useUnifi
 import routerV1 from "./v1/routes/index";
 
 const app = express();
+app.use(cookieParser())
 
 app.use(urlencoded());
 app.use(json());
