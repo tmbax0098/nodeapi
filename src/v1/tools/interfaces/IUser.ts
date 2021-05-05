@@ -8,7 +8,7 @@ export default interface IUser {
     confirmed?: boolean;
     deleted?: boolean;
     account?: any;
-    role?: string;
-    accesses?: number[];
+    role?: number;
+    // accesses?: number[];
     services?: number[];
 }

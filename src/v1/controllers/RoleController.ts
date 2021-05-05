@@ -14,17 +14,6 @@ export class RoleController extends Controller {
         if (req.cookies.token && req.cookies.token !== "") {
             userToken = req.cookies.token;
         }
-        // else {
-        //     userToken =
-        //         req.headers.hasOwnProperty("token") ?
-        //             req.headers.token :
-        //             req.body.hasOwnProperty("token") ?
-        //                 req.body.token :
-        //                 req.params.hasOwnProperty("token") ?
-        //                     req.params.token :
-        //                     null;
-        // }
-
 
         if (isJWT(userToken)) {
             let tokenData = await Token.findOne({value: userToken});
@@ -42,72 +31,65 @@ export class RoleController extends Controller {
         }
     }
 
+    getRole = (req: Request) => {
 
-    isTechnical(req: Request) {
-        return !req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.technical;
-    }
-
-    isAdmin(req: Request) {
-        return !req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.admin;
-    }
-
-    isUser(req: Request) {
-        return !req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.user;
-    }
-
-    isSuperMember(req: Request) {
-        return !req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.superMember;
-    }
-
-    isMember(req: Request) {
-        return !req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.member;
-    }
-
-    isAll(req: Request) {
-        return !req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.all;
-    }
-
-
-    //TODO here must be complete
-    onlyTechnical: ApiRequest = async (req, res, next) => {
-        if (!req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.technical) {
-            return this.accessDenied(res, {});
+        try {
+            let role : string | undefined = req.headers.role as string;
+            if(role=== undefined){
+                role = EnumRoles.guest.toString();
+            }
+            return parseInt(role);
+        } catch {
+            return EnumRoles.guest;
         }
-        next();
+
     }
-    onlyAdmin: ApiRequest = async (req, res, next) => {
-        if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.admin) {
-            return this.accessDenied(res, {});
+
+    isTechnical: ApiRequest = (req, res, next) => {
+        if (this.getRole(req) <= EnumRoles.technical) {
+            return next();
         }
-        next();
+        this.accessDenied(res, {});
     }
+
+    isAdmin: ApiRequest = (req, res, next) => {
+        if (this.getRole(req) <= EnumRoles.admin) {
+            return next();
+        }
+        this.accessDenied(res, {});
+    }
+
+    isUser: ApiRequest = (req, res, next) => {
+        if (this.getRole(req) <= EnumRoles.user) {
+            return next();
+        }
+        this.accessDenied(res, {});
+    }
+
+    isSuperMember: ApiRequest = (req, res, next) => {
+        if (this.getRole(req) <= EnumRoles.superMember) {
+            return next();
+        }
+        this.accessDenied(res, {});
+    }
+
+    isMember: ApiRequest = (req, res, next) => {
+        if (this.getRole(req) <= EnumRoles.member) {
+            return next();
+        }
+        // console.log("role is guest");
+        this.accessDenied(res, {});
+    }
+
+    isGuest: ApiRequest = (req, res, next) => {
+        if (this.getRole(req) === EnumRoles.guest) {
+            return next();
+        }
+        this.accessDenied(res, {});
+    }
+
     onlyUser: ApiRequest = async (req, res, next) => {
         if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.user) {
-            return this.accessDenied(res, {});
-        }
-        next();
-    }
-    onlySuperMember: ApiRequest = async (req, res, next) => {
-        if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.superMember) {
-            return this.accessDenied(res, {});
-        }
-        next();
-    }
-    onlyMember: ApiRequest = async (req, res, next) => {
-        if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.member) {
-            return this.accessDenied(res, {});
-        }
-        next();
-    }
-    onlyAll: ApiRequest = async (req, res, next) => {
-        if (!req.headers.role || parseInt(req.headers.role as string) !== EnumRoles.all) {
-            return this.accessDenied(res, {});
-        }
-        next();
-    }
-
-    notAll: ApiRequest = async (req, res, next) => {
-        if (!req.headers.role || parseInt(req.headers.role as string) === EnumRoles.all) {
             return this.accessDenied(res, {});
         }
         next();

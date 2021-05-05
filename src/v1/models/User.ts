@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import validator from 'validator';
 import IUser from "../tools/interfaces/IUser";
 import EnumRoles from "../tools/enums/EnumRoles";
+import EnumService from "../tools/enums/EnumService";
 
 const timestamps = require('mongoose-timestamp');
 
@@ -52,15 +53,13 @@ const UserSchema = new mongoose.Schema({
         ref: "Account",
     },
     role: {
-        type: mongoose.Schema.Types.String,
-        default: EnumRoles.member,
+        type: mongoose.Schema.Types.Number,
+        default: EnumRoles.user,
     },
-    accesses: [{
+    services: {
         type: mongoose.Schema.Types.Number,
-    }],
-    services: [{
-        type: mongoose.Schema.Types.Number,
-    }]
+        default: EnumService.post
+    }
 });
 UserSchema.plugin(timestamps);
 UserSchema.method('transform', function () {
@@ -75,7 +74,7 @@ UserSchema.method('transform', function () {
 });
 UserSchema.method('toTextValue', function () {
     let obj = this.toObject() as IUser;
-    return {text : obj.username , value : obj._id};
+    return {text: obj.username, value: obj._id};
 });
 
 const User = mongoose.model("User", UserSchema);

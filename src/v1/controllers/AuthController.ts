@@ -2,7 +2,7 @@ import Controller, {Answer, AnswerData, ApiRequest} from "./Controller";
 import User from "../models/User";
 import {CallbackError, Error} from "mongoose";
 import {cryptoOption, siteAddress} from "../../config";
-
+import {Response, Request, NextFunction} from "express";
 import {
     Message_ConfirmFail,
     Message_ConfirmSuccess,
@@ -12,12 +12,23 @@ import {
 import {confirmTemplate} from "../tools/ConfirmEmailTemplate";
 import UserConfirm from "../models/UserConfirm";
 import Token from "../models/Token";
+import EnumRoles from "../tools/enums/EnumRoles";
 
 const bcrypt = require('bcrypt');
 
 export default new class AuthController extends Controller {
 
-    create: ApiRequest = async (req, res) => {
+
+    createTechnical: ApiRequest = async (req, res) => {
+        this.create(req, res , EnumRoles.technical);
+    }
+    createAdmin: ApiRequest = async (req, res) => {
+        this.create(req, res , EnumRoles.admin);
+    }
+    createUser: ApiRequest = async (req, res) => {
+        this.create(req, res , EnumRoles.user);
+    }
+    create = async (req: Request, res: Response , role : number) => {
         let adduser = new User({...req.body});
         const packet: AnswerData = {
             data: null,
@@ -42,10 +53,11 @@ export default new class AuthController extends Controller {
                         message: "This username is exist!"
                     })
                 }
+                adduser.role = role;
                 adduser.password = bcrypt.hashSync(adduser.password, cryptoOption.saltRounds);
-                adduser.save((error1: CallbackError, doc: any) => {
-                    if (error1) {
-                        packet.data = error1.message;
+                adduser.save((error: CallbackError, doc: any) => {
+                    if (error) {
+                        packet.data = error.message;
                         return this.error(res, packet);
                     }
                     this.message(res, Message_UserCreated);
@@ -60,6 +72,7 @@ export default new class AuthController extends Controller {
                         const rejectUrl = siteAddress + "/reject/" + userConfirm.code;
                         this.sendMail(doc.username, "Confirm Email", confirmTemplate(acceptUrl, rejectUrl));
                     });
+
 
                 });
             });
@@ -168,24 +181,24 @@ export default new class AuthController extends Controller {
         this.message(res, "log out successfully!");
     }
 
-    all: ApiRequest = (req, res) => {
-        User.find((err: any, docs: any[]) => {
-            this.success(res, {
-                data: docs.map(item => item.transform()),
-                error: false,
-                status: true,
-                message: "All user!"
-            });
-        })
-    }
-    allConfirm: ApiRequest = (req, res) => {
-        UserConfirm.find((err: any, docs: any[]) => {
-            this.success(res, {
-                data: docs,
-                error: false,
-                status: true,
-                message: "All user!"
-            });
-        })
-    }
+    // all: ApiRequest = (req, res) => {
+    //     User.find((err: any, docs: any[]) => {
+    //         this.success(res, {
+    //             data: docs.map(item => item.transform()),
+    //             error: false,
+    //             status: true,
+    //             message: "All user!"
+    //         });
+    //     })
+    // }
+    // allConfirm: ApiRequest = (req, res) => {
+    //     UserConfirm.find((err: any, docs: any[]) => {
+    //         this.success(res, {
+    //             data: docs,
+    //             error: false,
+    //             status: true,
+    //             message: "All user!"
+    //         });
+    //     })
+    // }
 }

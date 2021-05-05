@@ -1,7 +1,9 @@
 import Controller, {ApiRequest} from "./Controller";
 import User from "../models/User";
 import IAnswerUser from "../tools/interfaces/IAnswerUser";
-import TypeTextValue from "../tools/types/TypeTextValue";
+import {QueryOptions} from "mongoose";
+import ITable from "../tools/interfaces/ITable";
+import {CallbackError} from "mongoose";
 
 export default new class UserController extends Controller {
 
@@ -65,6 +67,36 @@ export default new class UserController extends Controller {
         })
     }
 
+    edit: ApiRequest = async (req, res) => {
+
+        const editUser = new User({...req.body});
+        editUser.validate((error: CallbackError) => {
+            if (error) {
+                return this.error(res, {message: error.message, data: error})
+            }
+            const options: QueryOptions = {
+                limit: 1,
+            }
+            User.updateOne({_id: editUser._id}, {...editUser}, options, (error: CallbackError, doc: any) => {
+                if (error) {
+                    return this.error(res, {message: error.message, data: error})
+                }
+                return this.success(res, {
+                    error: false,
+                    status: true,
+                    data: doc as IAnswerUser,
+                    message: "All user!"
+                })
+            })
+            return this.fail(res, {
+                data: null,
+                message: "User not found!"
+            })
+        })
+
+
+    }
+
     table: ApiRequest = async (req, res) => {
 
         const params = req.params as object as ITable;
@@ -88,10 +120,4 @@ export default new class UserController extends Controller {
             message: "All user!"
         })
     }
-}
-
-interface ITable {
-    pageSize: number;
-    pageNumber: number;
-    searchWord: string;
 }
