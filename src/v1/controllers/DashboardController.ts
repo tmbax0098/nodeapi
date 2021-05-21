@@ -13,7 +13,8 @@ export default new class DashboardController extends Controller {
                         text: "Users",
                         value: 10,
                         color: "#ff0000",
-                        icon: "faAngleRight"
+                        icon: "faAngleRight",
+                        description : "jsad fdsf dsafjd aj i gfa wfjaw hfdsaf "
                     }
                 ]
             }
