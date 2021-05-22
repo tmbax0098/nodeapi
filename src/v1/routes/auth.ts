@@ -10,6 +10,7 @@ router.put("/signupAdmin", RoleController.isGuest, AuthController.createAdmin);
 router.put("/signup", RoleController.isGuest, AuthController.createUser);
 router.post("/signin", RoleController.isGuest, AuthController.login);
 router.get("/signout", AuthController.logout);
+router.get("/validToken", AuthController.validToken);
 router.get("/confirm/accept/:token", RoleController.isGuest, AuthController.confirmAccept);
 router.get("/confirm/reject/:token", RoleController.isGuest, AuthController.confirmReject);
 
