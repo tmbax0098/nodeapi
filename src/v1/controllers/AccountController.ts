@@ -117,7 +117,8 @@ export default new (class AccountController extends Controller {
                     let newAccount = new Account({
                         userId: req.headers._id,
                         avatar: url,
-                    }).save((err: any) => {
+                    });
+                    newAccount.save((err: any) => {
                         if (err) {
                             return this.error(res, {message: err.message});
                         }
