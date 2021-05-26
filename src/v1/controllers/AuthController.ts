@@ -31,29 +31,22 @@ export default new (class AuthController extends Controller {
         const packet: AnswerData = {
             data: null,
             message: Message_ValidationError,
-            error: true,
-            status: false,
         };
         adduser.validate((error: CallbackError) => {
             if (error) {
-                console.log(error);
-
-                packet.data = error.message;
-                return this.error(res, packet);
+                return this.error(res, error);
             }
             User.findOne(
                 {username: adduser.username},
                 (err: CallbackError, findUser: any) => {
                     if (err) {
                         return this.error(res, {
+                            data : error,
                             message: "خطا در ساخت اکانت! لطفا دوباره تلاش کنید",
                         });
                     }
                     if (findUser) {
-                        return this.fail(res, {
-                            data: null,
-                            message: "این نام کاربری موجود است",
-                        });
+                        return this.failMessage(res, "این نام کاربری موجود است");
                     }
                     adduser.role = role;
                     adduser.password = bcrypt.hashSync(
@@ -91,14 +84,9 @@ export default new (class AuthController extends Controller {
 
         UserConfirm.findOne({code: token}, async (error: Error, doc: any) => {
             if (error || !doc) {
-                this.fail(res, {
-                    data: null,
-                    status: false,
-                    error: false,
-                    message: Message_ConfirmFail,
-                });
+                this.failMessage(res, Message_ConfirmFail);
             } else {
-                console.log("doc : \n", doc);
+                // console.log("doc : \n", doc);
 
                 await User.updateOne({username: doc.username}, {confirmed: true});
                 await UserConfirm.deleteOne({username: doc.username});
@@ -113,12 +101,7 @@ export default new (class AuthController extends Controller {
             {code: token},
             (error: Error, doc: any) => {
                 if (error || !doc) {
-                    this.fail(res, {
-                        data: null,
-                        status: false,
-                        error: false,
-                        message: Message_ConfirmFail,
-                    });
+                    this.failMessage(res, Message_ConfirmFail);
                 } else {
                     User.updateOne({username: userConfirm.username}, {confirm: true});
                     UserConfirm.deleteOne({username: userConfirm.username});
@@ -182,10 +165,7 @@ export default new (class AuthController extends Controller {
                     }
                 );
             } else {
-                this.fail(res, {
-                    data: null,
-                    message: "نام کاربری یا گذرواژه صحیح نمی باشد!",
-                });
+                this.failMessage(res, "نام کاربری یا گذرواژه صحیح نمی باشد!");
             }
         } catch (e) {
             this.error(res, {
@@ -203,13 +183,9 @@ export default new (class AuthController extends Controller {
         try {
             let token = await Token.findOne({token: req.headers.cookie});
             console.log("token ", token);
-            this.success(res, {
-                message: "Token is valid!"
-            })
+            this.message(res, "توکن معتبر است");
         } catch (e) {
-            this.fail(res, {
-                message: "token is not valid!",
-            })
+            this.failMessage(res, "توکن معتبر نمی باشد");
         }
     }
 

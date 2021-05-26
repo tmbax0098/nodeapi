@@ -7,6 +7,7 @@ export default new class DashboardController extends Controller {
     dashboard: ApiRequest = async (req, res) => {
 
         this.success(res, {
+            message : "اطلاعات داشبورد",
             data: {
                 cards: [
                     {

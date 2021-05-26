@@ -34,8 +34,8 @@ export class RoleController extends Controller {
     getRole = (req: Request) => {
 
         try {
-            let role : string | undefined = req.headers.role as string;
-            if(role=== undefined){
+            let role: string | undefined = req.headers.role as string;
+            if (role === undefined) {
                 role = EnumRoles.guest.toString();
             }
             return parseInt(role);
@@ -49,28 +49,28 @@ export class RoleController extends Controller {
         if (this.getRole(req) <= EnumRoles.technical) {
             return next();
         }
-        this.accessDenied(res, {});
+        this.accessDenied(res, "شما کاربر عضو نیستید");
     }
 
     isAdmin: ApiRequest = (req, res, next) => {
         if (this.getRole(req) <= EnumRoles.admin) {
             return next();
         }
-        this.accessDenied(res, {});
+        this.accessDenied(res, "شما ادمین نیستید");
     }
 
     isUser: ApiRequest = (req, res, next) => {
         if (this.getRole(req) <= EnumRoles.user) {
             return next();
         }
-        this.accessDenied(res, {});
+        this.accessDenied(res, "شما کاربر نیستید");
     }
 
     isSuperMember: ApiRequest = (req, res, next) => {
         if (this.getRole(req) <= EnumRoles.superMember) {
             return next();
         }
-        this.accessDenied(res, {});
+        this.accessDenied(res, "شما کاربر ویژه نیستید");
     }
 
     isMember: ApiRequest = (req, res, next) => {
@@ -78,19 +78,19 @@ export class RoleController extends Controller {
             return next();
         }
         // console.log("role is guest");
-        this.accessDenied(res, {});
+        this.accessDenied(res, "شما کاربر عضو نیستید");
     }
 
     isGuest: ApiRequest = (req, res, next) => {
         if (this.getRole(req) === EnumRoles.guest) {
             return next();
         }
-        this.accessDenied(res, {});
+        this.accessDenied(res, "تنها کاربر مهمان به این درخواست دسترسی دارد");
     }
 
     onlyUser: ApiRequest = async (req, res, next) => {
         if (!req.headers.role || parseInt(req.headers.role as string) > EnumRoles.user) {
-            return this.accessDenied(res, {});
+            return this.accessDenied(res, "تنها کاربر به این درخواست دسترسی دارد");
         }
         next();
     }

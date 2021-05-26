@@ -66,10 +66,7 @@ export default new (class AccountController extends Controller {
             new Account({userId: req.headers._id}).save(
                 (err: CallbackError, doc: any) => {
                     if (err) {
-                        return this.error(res, {
-                            data: err,
-                            message: err.message,
-                        });
+                        return this.error(res, err);
                     }
                     return this.success(res, {
                         data: doc.transform(),
@@ -93,14 +90,12 @@ export default new (class AccountController extends Controller {
     };
 
     saveAvatar: ApiRequest = async (req, res: any) => {
-        const file = req.file;
 
-        if (!file) {
-            this.fail(res, {
-                message: "تصویر پروفایل را انتخاب کنید!",
-            });
-        } else {
-            try {
+        this.tryAndManageInternalError(res, async () => {
+            const file = req.file;
+            if (!file) {
+                this.failMessage(res, "تصویر پروفایل را انتخاب کنید!");
+            } else {
                 console.log("id  is : ", req.headers._id);
 
                 let account = await Account.findOne({userId: req.headers._id});
@@ -139,15 +134,10 @@ export default new (class AccountController extends Controller {
                         );
                     });
                 }
-                this.fail(res, {
-                    message: "خطا در آپلود عکس",
-                });
-            } catch (e) {
-                this.fail(res, {
-                    message: e.message,
-                });
+                return this.failMessage(res, "خطا در آپلود عکس");
             }
-        }
+        })
+
     };
 
     takeAvatar: ApiRequest = async (req, res) => {

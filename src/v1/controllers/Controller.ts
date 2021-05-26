@@ -9,16 +9,26 @@ const sendmail = require('sendmail')();
 export type ApiRequest = (req: Request, res: Response, next: NextFunction) => void;
 
 export type AnswerData = {
-    data?: any;
-    message?: string;
-    status?: boolean;
-    error?: boolean;
+    data: any;
+    message: string;
 }
 
 export type Answer = (res: Response, data: AnswerData) => void;
 export type AnswerMessage = (res: Response, message: string) => void;
+export type AnswerError = (res: Response, error: any) => void;
 
 export default class Controller {
+
+    tryAndManageInternalError = async (res: Response, method: any) => {
+        try {
+            method();
+        } catch (e) {
+            this.error500(res, {
+                message: e.message,
+                data: e
+            })
+        }
+    }
 
     createToken = (data: any): string => {
         console.log("createToken : data =>\n", data)
@@ -41,48 +51,52 @@ export default class Controller {
         });
     }
 
+
+    private _sendResponse = (res: Response, code: number, data: AnswerData) => {
+        res.status(code).json(data);
+    }
+
     answer: Answer = (res, data) => {
-        res.status(200).json(data);
+        this._sendResponse(res, 200, data);
     }
 
     success: Answer = (res, data) => {
-        data.status = true;
-        data.error = false;
-        res.status(200).json(data);
+        this._sendResponse(res, 200, data);
     }
 
-    fail: Answer = (res, data) => {
-        data.status = false;
-        data.error = false;
-        res.status(200).json(data);
+    fail: Answer = (res, data = {message: "", data: null}) => {
+        this._sendResponse(res, 600, data);
     }
-
-    error: Answer = (res, data) => {
-        data.status = false;
-        data.error = true;
-        res.status(200).json(data);
-    }
-
-    accessDenied: Answer = (res, data = {}) => {
-
-        const info: AnswerData = {
+    failMessage: AnswerMessage = (res, message) => {
+        this._sendResponse(res, 200, {
             data: null,
-            status: false,
-            error: true,
-            message: data.message ? data.message : "Access denied!"
-        };
+            message: message
+        });
+    }
 
-        res.status(401).json(info);
+    error: AnswerError = (res, error: any = {message: ""}) => {
+        this._sendResponse(res, 601, {
+            data: error,
+            message: error.message
+        });
+    }
+    error500: AnswerError = (res, data) => {
+        res.statusMessage = data.message;
+        res.status(500).json(data);
+    }
+
+    accessDenied: AnswerMessage = (res, message: string) => {
+        this._sendResponse(res, 401, {
+            data: null,
+            message: message
+        });
     }
 
     message: AnswerMessage = (res, message) => {
-        const answer: AnswerData = {
+        this._sendResponse(res, 200, {
             data: null,
-            message: message,
-            status: true,
-            error: false
-        }
-        res.status(200).json(answer);
+            message: message
+        });
     }
 
     debug: ApiRequest = (req, res, next) => {

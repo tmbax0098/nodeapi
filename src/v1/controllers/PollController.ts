@@ -37,20 +37,16 @@ export default new (class PollController extends Controller {
     names: ApiRequest = async (req, res) => {
         const list = await Poll.find().select({_id: 1, title: 1});
         this.success(res, {
-            error: false,
-            status: true,
             data: list.map((item: any) => item.toTextValue()),
-            message: "All user text and value!"
+            message: "نام و مقدار نظرسنجی ها"
         })
     }
     all: ApiRequest = async (req, res) => {
         const list = await Poll.find();
 
         this.success(res, {
-            error: false,
-            status: true,
             data: list.map((item: any) => item.transform()),
-            message: "All user!"
+            message: "تمام نظرسنجی ها"
         })
     }
     one: ApiRequest = async (req, res) => {
@@ -99,23 +95,21 @@ export default new (class PollController extends Controller {
         let newPoll = new Poll(req.body);
         newPoll.validate((error: CallbackError) => {
             if (error) {
-                return this.error(res, {data: error})
+                return this.error(res, error);
             }
 
             newPoll.save((error: CallbackError) => {
                 if (error) {
-                    return this.error(res, {data: error})
+                    return this.error(res, error)
                 }
                 new Participant({
                     userId: req.headers._id,
                     pollId: newPoll._id
                 }).save((err: CallbackError) => {
                     if (err) {
-                        return this.error(res, {data: error})
+                        return this.error(res, err);
                     }
                     this.success(res, {
-                        error: false,
-                        status: true,
                         data: newPoll as IPoll,
                         message: "Poll created!"
                     })
