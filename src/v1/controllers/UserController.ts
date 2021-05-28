@@ -13,10 +13,12 @@ export default new (class UserController extends Controller {
 
     deleteAll: ApiRequest = async (req, res) => {
         await User.deleteMany({});
+        await Account.deleteMany({});
         this.message(res, "تمامی کاربران حذف گردیدند");
     };
     delete: ApiRequest = async (req, res) => {
         await User.deleteOne({_id: req.params.id});
+        await Account.deleteOne({user: req.params.id});
         this.success(res, {
             data: null,
             message: "کاربر بصورت کلی حذف گردید",
@@ -50,14 +52,13 @@ export default new (class UserController extends Controller {
         });
     };
     one: ApiRequest = async (req, res) => {
-        const item = await User.findOne({_id: req.params.id}).populate("account");
+        let item = await User.findOne({_id: req.params.id}).populate("account");
         if (item) {
             return this.success(res, {
                 data: item as IAnswerUser,
                 message: "کاربر یافت شد",
             });
         }
-
         return this.fail(res, {
             data: null,
             message: "کاربر یافت نشد",
@@ -153,17 +154,34 @@ export default new (class UserController extends Controller {
             }
 
 
-            const list = await User.find(condition)
+            User.find(condition)
+                .populate("accounts")
                 .skip(params.page * params.size)
                 .limit(params.size)
-                .select({password: 0});
+                .select({password: 0})
+                .then((error: any, list: Array<any> | null) => {
+                    if (error) {
+                        return this.fail(res, {
+                            data: error,
+                            message: error.message,
+                        });
+                    }
+                    this.success(res, {
+                        // data: Array.isArray(list) ? list.map((item: any) => item.transform()) : [],
+                        data: Array.isArray(list) ? list : [],
+                        message: "جدول کاربران",
+                    });
+                })
+                .catch((error: any) => {
+                    this.fail(res, {
+                        data: error,
+                        message: error.message,
+                    });
+                });
 
-            params.list = list.map((item: any) => item.transform());
+            // params.list = list.map((item: any) => item.transform());
 
-            this.success(res, {
-                data: params,
-                message: "جدول کاربران",
-            });
+
         })
     };
 

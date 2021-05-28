@@ -9,17 +9,19 @@ import authRoute from "./auth";
 import userRoute from "./user";
 import accountRoute from './account';
 import pollRoute from "./poll";
+import databaseRoute from "./database";
 import dashboardRoute from "./dashboard"
 
 router.use(RoleController.decodeToken);
 
 router.get("/version", (req, res) => {
     res.send("API version 1");
-})
+});
 router.use("/auth", authRoute);
 router.use("/user", userRoute);
 router.use("/account", accountRoute);
 router.use("/poll", pollRoute);
 router.use("/dashboard", dashboardRoute);
+router.use("/db", databaseRoute);
 
 export default router;

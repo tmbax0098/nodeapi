@@ -48,7 +48,7 @@ const UserSchema = new mongoose.Schema({
         required: false,
         default: false,
     },
-    accountId: {
+    account: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Account",
     },

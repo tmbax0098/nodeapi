@@ -13,6 +13,7 @@ import {confirmTemplate} from "../tools/ConfirmEmailTemplate";
 import UserConfirm from "../models/UserConfirm";
 import Token from "../models/Token";
 import EnumRoles from "../tools/enums/EnumRoles";
+import Account from "../models/Account";
 
 const bcrypt = require("bcrypt");
 
@@ -27,57 +28,108 @@ export default new (class AuthController extends Controller {
         this.create(req, res, EnumRoles.user);
     };
     create = async (req: Request, res: Response, role: number) => {
-        let adduser = new User({...req.body});
-        const packet: AnswerData = {
-            data: null,
-            message: Message_ValidationError,
-        };
-        adduser.validate((error: CallbackError) => {
-            if (error) {
-                return this.error(res, error);
+        try {
+            let adduser = new User({...req.body});
+
+            let result = await adduser.validate();
+            if (result) {
+                return this.error(res, result);
             }
-            User.findOne(
-                {username: adduser.username},
-                (err: CallbackError, findUser: any) => {
-                    if (err) {
-                        return this.error(res, {
-                            data : error,
-                            message: "خطا در ساخت اکانت! لطفا دوباره تلاش کنید",
-                        });
-                    }
-                    if (findUser) {
-                        return this.failMessage(res, "این نام کاربری موجود است");
-                    }
-                    adduser.role = role;
-                    adduser.password = bcrypt.hashSync(
-                        adduser.password,
-                        cryptoOption.saltRounds
-                    );
-                    adduser.save((error: CallbackError, doc: any) => {
-                        if (error) {
-                            packet.data = error.message;
-                            return this.error(res, packet);
-                        }
-                        this.message(res, Message_UserCreated);
+            let user = await User.findOne({username: adduser.username});
+            if (user) {
 
-                        const userConfirm = new UserConfirm({
-                            username: doc.username,
-                            code: Date.now().toString() + "sdfafdasf",
-                        });
+                console.log("user is : ", user);
 
-                        userConfirm.save((error: any) => {
-                            const acceptUrl = siteAddress + "/accept/" + userConfirm.code;
-                            const rejectUrl = siteAddress + "/reject/" + userConfirm.code;
-                            this.sendMail(
-                                doc.username,
-                                "Confirm Email",
-                                confirmTemplate(acceptUrl, rejectUrl)
-                            );
-                        });
-                    });
-                }
+                return this.failMessage(res, "این نام کاربری موجود است");
+            }
+
+            adduser.role = role;
+            adduser.password = bcrypt.hashSync(
+                adduser.password,
+                cryptoOption.saltRounds
             );
-        });
+
+            // adduser = await adduser.save();
+            let addaccount = new Account({user: adduser._id});
+            adduser.account = addaccount._id;
+
+            await addaccount.save();
+            await adduser.save();
+
+            this.message(res, Message_UserCreated);
+
+            const userConfirm = new UserConfirm({
+                username: adduser.username,
+                code: Date.now().toString() + "sdfafdasf",
+            });
+
+            userConfirm.save((error: any) => {
+                const acceptUrl = siteAddress + "/accept/" + userConfirm.code;
+                const rejectUrl = siteAddress + "/reject/" + userConfirm.code;
+                this.sendMail(
+                    adduser.username,
+                    "Confirm Email",
+                    confirmTemplate(acceptUrl, rejectUrl)
+                );
+            });
+        } catch (e) {
+            const packet: AnswerData = {
+                data: e,
+                message: Message_ValidationError,
+            };
+            this.error(res, packet)
+        }
+
+
+        // adduser.validate((error: CallbackError) => {
+        //     if (error) {
+        //         return this.error(res, error);
+        //     }
+        //
+        //
+        //     User.findOne(
+        //         {username: adduser.username},
+        //         (err: CallbackError, findUser: any) => {
+        //             if (err) {
+        //                 return this.error(res, {
+        //                     data: error,
+        //                     message: "خطا در ساخت اکانت! لطفا دوباره تلاش کنید",
+        //                 });
+        //             }
+        //             if (findUser) {
+        //                 return this.failMessage(res, "این نام کاربری موجود است");
+        //             }
+        //             adduser.role = role;
+        //             adduser.password = bcrypt.hashSync(
+        //                 adduser.password,
+        //                 cryptoOption.saltRounds
+        //             );
+        //             adduser.save((error: CallbackError, doc: any) => {
+        //                 if (error) {
+        //                     packet.data = error.message;
+        //                     return this.error(res, packet);
+        //                 }
+        //                 this.message(res, Message_UserCreated);
+        //
+        //                 const userConfirm = new UserConfirm({
+        //                     username: doc.username,
+        //                     code: Date.now().toString() + "sdfafdasf",
+        //                 });
+        //
+        //                 userConfirm.save((error: any) => {
+        //                     const acceptUrl = siteAddress + "/accept/" + userConfirm.code;
+        //                     const rejectUrl = siteAddress + "/reject/" + userConfirm.code;
+        //                     this.sendMail(
+        //                         doc.username,
+        //                         "Confirm Email",
+        //                         confirmTemplate(acceptUrl, rejectUrl)
+        //                     );
+        //                 });
+        //             });
+        //         }
+        //     );
+        // });
+
     };
     confirmAccept: ApiRequest = (req, res) => {
         const token = req.params.token;

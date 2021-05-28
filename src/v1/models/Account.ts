@@ -27,7 +27,7 @@ const AccountSchema = new mongoose.Schema({
     required: false,
     default: "",
   },
-  userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },

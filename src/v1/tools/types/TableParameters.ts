@@ -4,7 +4,6 @@ type TableParameters = {
     count: number;
     list: Array<any>;
     filters?: UserTableParameters
-
 }
 
 

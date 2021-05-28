@@ -25,6 +25,8 @@ export class RoleController extends Controller {
                     ...user.toObject()
                 }
                 next();
+            } else {
+                next();
             }
         } else {
             next();
