@@ -166,12 +166,12 @@ export default new (class AuthController extends Controller {
         try {
             const {username, password} = req.body;
             const user = await User.findOne({username: username});
+            console.log("user is : ", user);
             if (user) {
                 if (!user.confirmed) {
                     return this.fail(res, {
                         data: null,
-                        message:
-                            "برای فعالسازی اکانت خود به رایانامه خود بروید و لینک ارسالی را تایید نمایید!",
+                        message: "برای فعالسازی اکانت خود به رایانامه خود بروید و لینک ارسالی را تایید نمایید!",
                     });
                 }
                 if (user.block) {
@@ -184,6 +184,9 @@ export default new (class AuthController extends Controller {
                     password,
                     user.password,
                     (error: any, result: boolean) => {
+
+                        console.log("compare password : ", error, result);
+
                         if (result) {
                             let token = new Token({
                                 value: this.createToken({username: username}),
